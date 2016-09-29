@@ -1,0 +1,43 @@
+html,body{
+	height: 100%;
+}
+
+.navbar{
+	border: none;
+	border-radius: 0;
+	background: #0099cc;
+	margin-bottom: 0;
+}
+.nav a.navbar-brand,.navbar-inverse .navbar-nav>li>a{
+	color: white;
+}
+.nav .navbar-brand{
+	background: #0f7ea2;
+}
+
+.body {
+    height: calc(100% - 50px);
+}
+
+.body .right {
+    float: left;
+    width: calc(100% - 150px);
+    height: 100%;
+    background: #ebedef;
+}
+
+.body .right .top {
+    padding: 10px 20px;
+    border-bottom: 1px solid #ccd2d4;
+    background: white;
+    color: #638998;
+    font-size: 15px;
+    font-family: '微软雅黑';
+}
+
+.body .left {
+    width: 150px;
+    height: 100%;
+    float: left;
+    background: #293038;
+}

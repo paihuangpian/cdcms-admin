@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>ydolm</title>
+	<link rel="stylesheet" type="text/css" href="__PUBLIC__/Admin/Bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="__PUBLIC__/Admin/Font-Awesome/css/font-awesome.min.css">
+	<link rel="stylesheet" type="text/css" href="__PUBLIC__/Admin/Css/style.css">
+	<script type="text/javascript" src="__PUBLIC__/Admin/Script/jquery-3.1.0.min.js"></script>
+	<script type="text/javascript" src="__PUBLIC__/Admin/Bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript">
+		var modaly = null;
+		function fnPage(){
+			var page = $('.pagination div').children();
+			modaly.fadeIn();
+			$('.pagination div').remove();
+			$('.pagination').html(page);
+			
+			$('.pagination a').click(function(){
+				$.get($(this).attr('href'), {index:'0'}, function(data){
+					if( data.status ){
+						$('.body .right .content').html(data.arr);
+						fnPage();
+						modaly.fadeOut();
+					}
+				});
+				return false;
+			});
+			$(page).wrap('<li>');
+			$('.pagination .current').removeClass('current').parent().addClass('active');
+		}
+		
+		$(document).ready(function(){
+			modaly = $('.body .right .modaly');
+			$('.mtr_nav li[url]').click(function(){
+				$('.mtr_nav li').removeClass('action');
+				$(this).addClass('action');
+				fnRef( $(this).attr('url') );
+				return false;
+			});
+			var ul = $('.body .left .mtr_nav .son');
+			var ulHeight = {};
+			$.each( ul, function( key, value ){
+				ulHeight[key] = $(value).height();
+			} );
+			ul.height(0);
+			$('.body .left .mtr_nav>li').click(function(){
+				var index = $('.body .left .mtr_nav>li').index($(this));
+				ul.eq(index).siblings('ul').height(0);
+				ul.eq(index).height(ulHeight[index]);
+			});
+		});
+
+		function msg( s, t, m ){
+			$('.modal-header .alert[role="alert"]').removeClass(s).addClass(t);
+			$('.modal-header .alert[role="alert"]').text(m);
+			$('.modal-header .alert[role="alert"]').css('opacity','1');
+			setTimeout(function(){
+				$('.modal-header .alert[role="alert"]').css('opacity','0');
+			},4000);
+		}
+
+		function detail( url, val, m ){
+			fnEmptyInput(val);
+			$.get(url, {}, function(data){
+				$.each(data.arr, function(n,value){
+					if( n == 'thumbnail' ){
+						$(val[n]).attr( 'src', value );
+					}
+					else{
+						$(val[n]).attr( 'placeholder', value );
+					}
+				});
+			});
+			return false;
+		}
+		function fnEmptyInput( val, the ){
+			$.each(val, function(key,value){
+				if( value.tagName == 'SELECT' ) return true;
+				$(value).val() ? $(value).val('') : '';
+				the ? $(value).attr('placeholder') ? $(value).attr( 'placeholder','' ) : '' : '';
+				$(value).attr('src') ? $(value).attr( 'src', '' ) : '';
+			});
+		}
+		
+		function fnRef( url, show ){
+			var model = {};
+			model = url.split('/');
+			show || modaly.fadeIn();
+			$.get(url, {index:'0'}, function(data){
+				if( data.status ){
+					$('.body .right .content').html(data.arr);
+					fnPage();
+				}
+				modaly.fadeOut();
+			});
+		}
+
+		function fnSubmit( url, val, table ){
+			var oData = {};
+			$.each(val, function(n,value){
+				if( typeof( value.attr('readonly') ) == 'undefined' ){
+					if( n == 'id' ){
+						oData[n] = $(value).attr("placeholder");
+					}else if( n == 'thumbnail' ){
+						oData[n] = $(value).attr('src');
+					}else{
+						oData[n] = $(value).val();
+					}
+				}
+			});
+			//console.log(oData);return false;
+			$.post(url, oData, function(data){
+				if( data.status ){
+					msg( 'alert-danger', 'alert-success', data.arr );
+					setTimeout(function(){
+						$(table).fadeOut();
+						data.url ? fnRef(data.url) : '';
+					},1000);
+				}else{
+					msg( 'alert-success', 'alert-danger', data.arr );
+				}
+			});
+			return false;
+		}
+
+		function del( url ){
+			if(window.confirm( '是否要删除该数据？删除后不可恢复' )){
+				modaly.fadeIn();
+				$.get(url, {}, function(data){
+					fnRef(data.url,true);
+				});
+			}
+			return false;
+		}
+
+		function fnSit( t, tpl ){
+			var url = t.action;
+			var oInput  = 	getInput( t, true );
+			console.log(oInput);
+			$.post( url, oInput, function( data ){
+				if( data.status ){
+					msg( 'alert-danger', 'alert-success', data.arr );
+					setTimeout( function(){
+						$(tpl).fadeOut();
+						data.url ? fnRef( data.url ) : '';
+					}, 1000 );
+				}else{
+					msg( 'alert-success', 'alert-danger', data.arr );
+				}
+			});
+			return false;
+		}
+
+		function getInput( t, val ){
+			var input = $(t).find('[fmName]');
+			var oInput = {};
+			var attr = null;
+			if( val ){
+				input = input.not('[readonly]');
+				$.each( input, function( key, value ){
+					attr = $(value).attr('fmName');
+					if( $(value).tagName == 'SELECT' ){
+						oInput[attr] = $(value).find('option:selected').val();
+					}else if( attr == 'thumbnail' || attr == 'thumb' ){
+						oInput[attr] = $(value).attr('src');
+					}else{
+						oInput[attr] = $(value).val() || $(value).val();
+					}
+					//console.log(key,'thumbnail',key == 'thumbnail');
+				});
+			}else{
+				$.each( input, function( key, value ){
+					oInput[ $(value).attr('fmName') ] = value;
+				});
+			}
+			
+			return oInput;
+		}
+
+		function fnDetail( url,t ){
+			var oInput = getInput(t);
+			var oArr = {
+				'thumbnail' : 'src',
+				'id' : 'value',
+			};
+
+			var the = null;
+			fnEmptyInput(oInput);
+			$.get( url, {}, function( data ){
+				$.each( data.arr, function( key, value ){
+					$.each( oArr, function( k, v ){
+						if( key == k ){
+							$( oInput[key] ).attr( v, value );
+							the = 1;
+							return false;
+						}
+					});
+					if( the ) {
+						the = 0;
+						return true;
+					}
+
+					if( key == 'status' || key == 'type' || key == 'ostatus' ){
+						//console.log(oInput[key],$( oInput[key] ).find('option'));
+						$( oInput[key] ).find('option').attr('selected',false);
+						$( oInput[key] ).find('option[value='+value+']').attr('selected',true);
+					}else{
+						$( oInput[key] ).attr( 'placeholder', value );
+					}
+					
+				});
+			});
+			return false;
+		}
+
+		function fnUpload( t, val ){
+			var formdata = new FormData(); 
+			var v_this = $(t);
+			var fileObj = v_this.get(0).files;  
+			var surl = $(t).attr('url');
+			formdata.append("imgFile", fileObj[0]);
+			jQuery.ajax({ 
+				url : surl, 
+				type : 'post', 
+				data : formdata,
+				cache : false, 
+				contentType : false, 
+				processData : false, 
+				dataType : "json", 
+				success : function(data) {
+					if( data.status ){
+						$(val).attr('src',data.arr.url);
+					} 
+					alert(data.arr.msg);
+				}
+			}); 
+			return false; 
+		}
+
+		function fnEdit( url, val ){
+			$.get(url, {}, function(data){
+				$(val).html(data.arr);
+				console.log(data,val);
+			});
+		}
+	</script>
+	<style type="text/css">
+		.asc:hover{
+			cursor: pointer;
+		}
+		td:hover{
+			color: #428bca;
+		}
+		li,ol,ul{
+			list-style: none;
+		}
+		th,td{
+			text-align: center;
+		}
+		.body .left .mtr_nav{
+			padding: 10px 0;
+			font-family: '微软雅黑';
+    		font-size: 15px;
+		}
+		.body .left .mtr_nav .son{
+			padding: 0;
+			font-family: '微软雅黑';
+    		font-size: 15px;
+    		background: #374452;
+   	 		padding: 0;
+   	 		overflow: hidden;
+   	 		transition: height 1s;
+		}
+		.mtr_nav li{
+			padding: 10px 15px;
+			color: aliceblue;
+			cursor: pointer;
+			transition: background 0.3s;
+		}
+		.mtr_nav li i{
+			display: inline-block;
+			width: 25px;
+		}
+		.mtr_nav a:hover{
+			text-decoration: none;
+		}
+		.mtr_nav li:hover{
+			background: #181f27;
+		}
+		.action{
+			background: #181f27;
+		}
+		.body .right .top p{
+			margin-bottom: 0;
+			display: inline-block;
+		}
+		.body .right .top p i{
+			margin-right: 5px;
+		}
+		.body .right .top ul{
+			float: right;
+			font-size: 18px;
+		}
+		.body .right .top ul i{
+			margin-right: 10px;
+		}
+		.modaly {
+		    position: absolute;
+		    width: 88.9%;
+		    height: 85.7%;
+		    background: rgba(220, 223, 226, 0.8);
+		    top: 92px;
+		    display: none;
+		}
+		.modaly p{
+			width: 100px;
+		    height: 100px;
+		    text-align: center;
+		    line-height: 100px;
+		    font-size: 40px;
+		    position: absolute;
+		    top: 50%;
+		    left: 50%;
+		    margin: -50px -50px;
+		}
+		.pagination{
+			float: right;
+			padding-right: 50px;
+		}
+	</style>
+</head>
+<body>
+	<nav class="navbar navbar-default navbar-inverse nav navbar-fiex-top" role="navigation"> 
+	    <div class="container-fluid">
+		    <div class="navbar-header"> 
+		        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#example-navbar-collapse"> 
+		            <span class="sr-only">切换导航</span> 
+		            <span class="icon-bar"></span> 
+		            <span class="icon-bar"></span> 
+		            <span class="icon-bar"></span> 
+		        </button> 
+		        <a class="navbar-brand" href="#">ydolm</a> 
+		    </div> 
+		    <div class="collapse navbar-collapse navbar-right" id="example-navbar-collapse"> 
+		        <ul class="nav navbar-nav"> 
+		            <li class="active"><a href="#">网站主页</a></li> 
+		            <li><a href="#">内容发布</a></li> 
+		            <li><a href="<{:U('Login/logout')}>">注销</a></li> 
+		        </ul> 
+		    </div> 
+	    </div> 
+	</nav>
+	<div class="body">
+		<div class="left">
+			<ul class="mtr_nav">
+				<li url="<{:U('Index/index')}>"><i class="icon-home"></i>返回首页</li>
+				<ul class="son"></ul>
+				<li url="<{:U('Admins/index')}>"><i class="icon-cog"></i>管理中心</li>
+				<ul class="son"></ul>
+				<li url="<{:U('Users/index')}>"><i class="icon-user"></i>用户管理</li>
+				<ul class="son"></ul>
+				<li><i class="icon-sitemap"></i>商品管理</li>
+				<ul class="son">
+					<li url="<{:U('Goods/index')}>"><i class="icon-circle-blank"></i>商品列表</li>
+				</ul>
+				<li url="<{:U('Orders/index')}>"><i class="icon-tags"></i>订单管理</li>
+				<ul class="son"></ul>
+				<li><i class="icon-tags"></i>模板管理</li>
+				<ul class="son">
+					<li url="<{:U('Template/index')}>"><i class="icon-circle-blank"></i>模板列表</li>
+					<li url="<{:U('Tpltype/index')}>"><i class="icon-circle-blank"></i>分类管理</li>
+				</ul>
+			</ul>
+		</div>
+		<div class="right">
+			<div class="content">
+				
+			</div>
+			<div class="modaly">
+				<p><i class="icon-cog icon-spin"></i></p>
+			</div>
+		</div>
+	</div>
+
+	<!-- 用户信息 -->
+	<div class="modal fade" id="myUser" data-remote="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
+	  	<div class="modal-dialog">
+	    	<div class="modal-content">
+	      		<div class="modal-header">
+	        		<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+	        		<h4 class="modal-title" id="myModalLabel">用户信息</h4>
+	      		</div>
+	      		<div class="modal-body">
+		      	<form id="fmUser" class="form-horizontal" role="form">
+		      		<input type="hidden" fmName="id" value="id">
+		      		<div class="form-group">
+				    	<label for="inputName" class="col-sm-2 control-label">用户名</label>
+				    	<div class="col-sm-10">
+				      		<input type="text" fmName="name" readonly class="form-control" id="inputName" placeholder="UserName">
+				    	</div>
+				  	</div>
+				  	<div class="form-group">
+				    	<label for="inputEmail" class="col-sm-2 control-label">Email</label>
+				    	<div class="col-sm-10">
+				      		<input type="email" fmName="email" readonly class="form-control" id="inputEmail" placeholder="1191249254@qq.com">
+				    	</div>
+				  	</div>
+				  	<div class="form-group">
+				    	<label for="inputTel" class="col-sm-2 control-label">联系电话</label>
+				    	<div class="col-sm-10">
+				      		<input type="text" fmName="mobile" readonly class="form-control" id="inputTel" placeholder="15677793470">
+				    	</div>
+				  	</div>
+				  	<div class="form-group">
+				    	<label for="inputTime" class="col-sm-2 control-label">注册时间</label>
+				    	<div class="col-sm-10">
+				      		<input type="text" fmName="create_at" readonly class="form-control" id="inputTime" placeholder="2016-6-1 13:30:00">
+				    	</div>
+				  	</div>
+				  	<div class="form-group">
+				    	<label for="inputLevel" class="col-sm-2 control-label">等级</label>
+				    	<div class="col-sm-10">
+				      		<input type="text" fmName="level" readonly class="form-control" id="inputLevel" placeholder="普通用户">
+				    	</div>
+				  	</div>
+				  	<div class="form-group">
+				    	<label for="inputStatus" class="col-sm-2 control-label">状态</label>
+				    	<div class="col-sm-10">
+				      		<input type="text" fmName="status" readonly class="form-control" id="inputStatus" placeholder="正常">
+				    	</div>
+				  	</div>
+				</form>
+
+	      	</div>
+	      	<div class="modal-footer">
+	        	<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+	      	</div>
+	    </div>
+	  </div>
+	</div>
+
+	<!-- 管理员信息 -->
+	<div class="modal fade" id="myAdmin" data-remote="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
+	  	<div class="modal-dialog">
+	  		<form id="fmAdmin" class="form-horizontal" action="<{:U('Admins/edit')}>" role="form" method="post" onsubmit="return fnSit( this, '#myAdmin' )">
+	    		<div class="modal-content">
+		      		<div class="modal-header">
+		        		<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+		        		<h4 class="modal-title" id="myModalLabel">管理员信息</h4>
+		        		<div class="alert alert-success alert-dismissible text-center" style="opacity: 0;transition: opacity 1s;margin:0;padding: 10px;" role="alert">role="alert"</div>
+		      		</div>
+	      			<div class="modal-body">
+	      				<input type="hidden" fmName="id" value="id" >
+			      		<div class="form-group">
+					    	<label for="inputName" class="col-sm-2 control-label">管理员名</label>
+					    	<div class="col-sm-10">
+					      		<input type="text" fmName="name" class="form-control" id="inputUserName" placeholder="UserName">
+					    	</div>
+					  	</div>
+					  	<div class="form-group">
+					    	<label for="inputPassword" class="col-sm-2 control-label">原密码</label>
+					    	<div class="col-sm-10">
+					      		<input type="password" fmName="password" class="form-control" id="inputPassword" placeholder="原密码">
+					    	</div>
+					  	</div>
+					  	<div class="form-group">
+					    	<label for="inputPasswords" class="col-sm-2 control-label">新密码</label>
+					    	<div class="col-sm-10">
+					      		<input type="password" fmName="passwords" class="form-control" id="inputPasswords" placeholder="新密码">
+					    	</div>
+					  	</div>
+					  	<div class="form-group">
+					    	<label for="inputLast" class="col-sm-2 control-label">登录时间</label>
+					    	<div class="col-sm-10">
+					      		<input type="text" readonly fmName="last" class="form-control" id="inputLast" placeholder="1191249254@qq.com">
+					    	</div>
+					  	</div>
+					  	<div class="form-group">
+					    	<label for="inputIP" class="col-sm-2 control-label">登录IP</label>
+					    	<div class="col-sm-10">
+					      		<input type="text" readonly fmName="ip" class="form-control" id="inputIP" placeholder="15677793470">
+					    	</div>
+					  	</div>
+	      			</div>
+			      	<div class="modal-footer">
+			        	<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+			        	<button type="submit" class="btn btn-primary">提交</button>
+			      	</div>
+	    		</div>
+	    	</form>
+	  	</div>
+	</div>
+
+
+	<!-- 模板信息 -->
+	<div class="modal fade" id="myTemplate" data-remote="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
+	  	<div class="modal-dialog">
+	  		<form id="fmTemplate" class="form-horizontal" action="<{:U('Template/edit')}>" role="form" method="post" onsubmit="return fnSit( this, '#myTemplate' )">
+	    		
+	    	</form>
+	  	</div>
+	</div>
+	
+	<!-- 管理员添加 -->
+	<div class="modal fade" id="myAdmin-add" data-remote="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
+	  	<div class="modal-dialog">
+	  		<form id="fmAdmin_add" class="form-horizontal" action="<{:U('Admins/add')}>" role="form" method="post" onsubmit="return fnSit( this, '#myAdmin-add' )">
+	    		<div class="modal-content">
+		      		<div class="modal-header">
+		        		<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+		        		<h4 class="modal-title" id="myModalLabel">添加管理员</h4>
+		        		<div class="alert alert-success alert-dismissible text-center" style="opacity: 0;transition: opacity 1s;margin:0;padding: 10px;" role="alert">role="alert"</div>
+		      		</div>
+	      			<div class="modal-body">
+			      		<div class="form-group">
+					    	<label for="inputName" class="col-sm-2 control-label">管理员名</label>
+					    	<div class="col-sm-10">
+					      		<input type="text" fmName="name" class="form-control" id="inputNamea" placeholder="UserName">
+					    	</div>
+					  	</div>
+					  	<div class="form-group">
+					    	<label for="inputPassword" class="col-sm-2 control-label">密码</label>
+					    	<div class="col-sm-10">
+					      		<input type="password" fmName="password" class="form-control" id="inputPassworda" placeholder="密码">
+					    	</div>
+					  	</div>
+					  	<div class="form-group">
+					    	<label for="adminPwds" class="col-sm-2 control-label">确认密码</label>
+					    	<div class="col-sm-10">
+					      		<input type="password" fmName="passwords" class="form-control" id="adminPwds" placeholder="确认密码">
+					    	</div>
+					  	</div>
+	      			</div>
+			      	<div class="modal-footer">
+			        	<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+			        	<button type="submit" class="btn btn-primary">提交</button>
+			      	</div>
+	    		</div>
+	    	</form>
+	  	</div>
+	</div>
+
+	<!-- 模板添加 -->
+	<div class="modal fade" id="myTemplate-add" data-remote="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
+	  	<div class="modal-dialog">
+	  		<form id="fmTpl-add" class="form-horizontal" action="<{:U('Template/add')}>" role="form" method="post" onsubmit="return fnSit( this, '#myTemplate-add' )">
+	    		
+	    	</form>
+	  	</div>
+	</div>
+
+	<div class="modal fade" id="myTpl-typeAdd" data-remote="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
+	  	<div class="modal-dialog" style="display:table; width: auto;">
+	  		<form id="fmTpl-typeAdd" class="form-horizontal" action="<{:U('Tpltype/add')}>" role="form" method="post" onsubmit="return fnSit( this, '#myTpl-typeAdd' )">
+	    		
+	    	</form>
+	  	</div>
+	</div>
+
+	<div class="modal fade" id="myTpl-typeEdit" data-remote="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
+	  	<div class="modal-dialog" style="display:table; width: auto;">
+	  		<form id="fmTpl-typeEdit" class="form-horizontal" action="<{:U('Tpltype/edit')}>" role="form" method="post" onsubmit="return fnSit( this, '#myTpl-typeEdit' )">
+	    		
+	    	</form>
+	  	</div>
+	</div>
+
+	<div class="modal fade" id="myOrder" data-remote="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
+	  	<div class="modal-dialog" style="display:table; width: auto;">
+	  		<form id="fmOrder" class="form-horizontal" action="<{:U('Orders/edit')}>" role="form" method="post" onsubmit="return fnSit( this, '#myOrder' )">
+	    		
+	    	</form>
+	  	</div>
+	</div>
+
+	<div class="modal fade" id="myGoods-add" data-remote="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
+	  	<div class="modal-dialog">
+	  		<form id="fmGoods-add" enctype="multipart/form-data" class="form-horizontal" action="<{:U('Goods/add')}>" role="form" method="post" onsubmit="return fnSit( this, '#myGoods-add' )">
+	    		<div class="modal-content">
+		      		<div class="modal-header">
+		        		<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+		        		<h4 class="modal-title" id="myModalLabel">添加商品</h4>
+		        		<div class="alert alert-success alert-dismissible text-center" style="opacity: 0;transition: opacity 1s;margin:0;padding: 10px;" role="alert"></div>
+		      		</div>
+	      			<div class="modal-body">
+			      		<div class="form-group">
+					    	<label for="goodsName-add" class="col-sm-2 control-label">商品名</label>
+					    	<div class="col-sm-10">
+					      		<input type="text" fmName="name" class="form-control" id="goodsName-add" placeholder="商品名">
+					    	</div>
+					  	</div>
+					  	<div class="form-group">
+					    	<label for="goodsType-add" class="col-sm-2 control-label">商品类型</label>
+					    	<div class="col-sm-10">
+					      		<select id="goodsType-add" fmName="type" class="form-control">
+					      			<option selected="selected" value="1">企业</option>
+					      			<option value="2">商城</option>
+							    </select>
+					    	</div>
+					  	</div>
+					  	<div class="form-group">
+					    	<label for="goodsPrices-add" class="col-sm-2 control-label">市场价</label>
+					    	<div class="col-sm-10">
+					      		<input type="number" fmName="price" class="form-control" id="goodsPrices-add" placeholder="市场价">
+					    	</div>
+					  	</div>
+					  	<div class="form-group">
+					    	<label for="goodsThumb-add" class="col-sm-2 control-label">缩略图</label>
+					    	<div class="col-sm-10">
+					    		<p class="btn btn-default"><input url="<{:U('Goods/upload')}>" onchange="fnUpload( this, '#goodsImg-add' )" name="photo" type="file" id="goodsThumb-add" /></p>
+					      		<img style="max-width: 400px;" fmName="thumbnail" id="goodsImg-add" src="__PUBLIC__/Admin/Images/logo.png" />
+					    	</div>
+					  	</div>
+					  	<div class="form-group">
+					    	<label for="goodsStatus-add" class="col-sm-2 control-label">商品状态</label>
+					    	<div class="col-sm-10">
+					      		<select id="goodsStatus-add" fmName="status" class="form-control">
+					      			<option selected="selected" value="1">上架</option>
+					      			<option value="2">下架</option>
+							    </select>
+					    	</div>
+					  	</div>
+					  	<div class="form-group">
+					    	<label for="goodsUrl-add" class="col-sm-2 control-label">商品链接</label>
+					    	<div class="col-sm-10">
+					      		<input type="text" fmName="url" class="form-control" id="goodsUrl-add" placeholder="商品链接">
+					    	</div>
+					  	</div>
+	      			</div>
+			      	<div class="modal-footer">
+			        	<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+			        	<button type="submit" class="btn btn-primary">提交</button>
+			      	</div>
+	    		</div>
+	    	</form>
+	  	</div>
+	</div>
+
+	<!-- 商品编辑 -->
+	<div class="modal fade" id="myGoods" data-remote="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
+	  	<div class="modal-dialog">
+	  		<form id="fmGoods" enctype="multipart/form-data" class="form-horizontal" action="<{:U('Goods/edit')}>" role="form" method="post" onsubmit="return fnSit( this, '#myGoods' )">
+	    		<div class="modal-content">
+		      		<div class="modal-header">
+		        		<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+		        		<h4 class="modal-title" id="myModalLabel">商品编辑</h4>
+		        		<div class="alert alert-success alert-dismissible text-center" style="opacity: 0;transition: opacity 1s;margin:0;padding: 10px;" role="alert"></div>
+		      		</div>
+	      			<div class="modal-body">
+	      				<input type="hidden" fmName="id" value="" />
+			      		<div class="form-group">
+					    	<label for="goodsName" class="col-sm-2 control-label">商品名</label>
+					    	<div class="col-sm-10">
+					      		<input type="text" fmName="name" class="form-control" id="goodsName" placeholder="商品名">
+					    	</div>
+					  	</div>
+					  	<div class="form-group">
+					    	<label for="goodsType" class="col-sm-2 control-label">商品类型</label>
+					    	<div class="col-sm-10">
+					      		<select id="goodsType" fmName="type" class="form-control">
+					      			<option selected="selected" value="1">企业</option>
+					      			<option value="2">商城</option>
+							    </select>
+					    	</div>
+					  	</div>
+					  	<div class="form-group">
+					    	<label for="goodsPrices" class="col-sm-2 control-label">市场价</label>
+					    	<div class="col-sm-10">
+					      		<input type="number" fmName="price" class="form-control" id="goodsPrices" placeholder="市场价">
+					    	</div>
+					  	</div>
+					  	<div class="form-group">
+					    	<label for="goodsThumb" class="col-sm-2 control-label">缩略图</label>
+					    	<div class="col-sm-10">
+					    		<p class="btn btn-default"><input url="<{:U('Goods/upload')}>" onchange="fnUpload( this, '#goodsImg' )" name="photo" type="file" id="goodsThumb" /></p>
+					      		<img style="max-width: 400px;" fmName="thumbnail" id="goodsImg" src="__PUBLIC__/Admin/Images/logo.png" />
+					    	</div>
+					  	</div>
+					  	<div class="form-group">
+					    	<label for="goodsStatus" class="col-sm-2 control-label">商品状态</label>
+					    	<div class="col-sm-10">
+					      		<select id="goodsStatus" fmName="status" class="form-control">
+					      			<option selected="selected" value="1">上架</option>
+					      			<option value="2">下架</option>
+							    </select>
+					    	</div>
+					  	</div>
+					  	<div class="form-group">
+					    	<label for="goodsUrl" class="col-sm-2 control-label">商品链接</label>
+					    	<div class="col-sm-10">
+					      		<input type="text" fmName="url" class="form-control" id="goodsUrl" placeholder="商品链接">
+					    	</div>
+					  	</div>
+	      			</div>
+			      	<div class="modal-footer">
+			        	<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+			        	<button type="submit" class="btn btn-primary">提交</button>
+			      	</div>
+	    		</div>
+	    	</form>
+	  	</div>
+	</div>
+	<script type="text/javascript">
+		// $(function() { 
+		// 	$('.Thumb').on( 'change', function(){
+		// 		var formdata = new FormData(); 
+		// 		var v_this = $(this); 
+		// 		var fileObj = v_this.get(0).files; 
+		// 		url = "<{:U('Goods/upload')}>"; 
+		// 		formdata.append("imgFile", fileObj[0]);
+		// 		jQuery.ajax({ 
+		// 			url : url, 
+		// 			type : 'post', 
+		// 			data : formdata,
+		// 			cache : false, 
+		// 			contentType : false, 
+		// 			processData : false, 
+		// 			dataType : "json", 
+		// 			success : function(data) {
+		// 				if( data.status ){
+		// 					$('#Img').attr('src',data.arr.url);
+		// 				} 
+		// 				alert(data.arr.msg);
+		// 			}
+		// 		}); 
+		// 		return false; 
+		// 	} );
+		// }); 
+
+
+		// var inputUser = {
+		// 		'name':$('#inputName'),
+		// 		'email':$('#inputEmail'),
+		// 		'mobile':$('#inputTel'),
+		// 		'create_at':$('#inputTime'),
+		// 		'level':$('#inputLevel'),
+		// 		'status':$('#inputStatus'),
+		// 	};
+		// var inputAdmin = {
+		// 		'id':$('#inputID'),
+		// 		'name':$('#inputUserName'),
+		// 		'password':$('#inputPassword'),
+		// 		'passwords':$('#inputPasswords'),
+		// 		'last':$('#inputLast'),
+		// 		'ip':$('#inputIP'),
+		// 	};
+		// var inputAdmin_add = {
+		// 	'name':$('#inputNamea'),
+		// 	'password':$('#inputPassworda'),
+		// 	'passwords':$('#inputPasswordsa'),
+		// };
+		// var inputOrder = {
+		// 	'number':$('#inputNumber'),
+		// 	'name':$('#inputUser_id'),
+		// 	'price':$('#inputPrice'),
+		// 	'status':$('#inputStatus1'),
+		// 	'create_time':$('#inputCreate_time'),
+		// 	'pay_type':$('#inputPay_type'),
+		// };
+		// var inputGoods = {
+		// 	'name' : $('#inputGoodsName'),
+		// 	'type' : $('#inputGoodsType'),
+		// 	'price' : $('#inputPrices'),
+		// 	'thumbnail' : $('#imgThumb'),
+		// 	'url' : $('#inputUrl'),
+		// 	'status' : $('#inputGoodsStatus'),
+		// };
+	</script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<div class="top">
+	<p><i class="icon-list"></i><span>模板列表</span></p>
+	<ul>
+		<li data-toggle="modal" style="cursor: pointer;" onclick="fnEdit('<{:U('Admin/Template/add')}>','#fmTpl-add')" data-target="#myTemplate-add">
+			<i class="icon-plus-sign-alt"></i>
+		</li>
+	</ul>
+</div>
+<div class="users">
+	<table class="table table-hover">
+		<tr>
+			<th>ID</th>
+			<th>模板名</th>
+			<th>模板路径</th>
+			<th>模板分类</th>
+			<th>缩略图</th>
+			<th>操作</th>
+		</tr>
+		<foreach name="list" item="vo">
+			<tr>
+				<td><{$vo.id}></td>
+				<td><{$vo.name}></td>
+				<td><{$vo.path}></td>
+				<td><{$vo.type}></td>
+				<td><img style="max-width: 100px;" src="<{$vo.thumb}>"></td>
+				<td>
+					<a onclick="return fnEdit( this.href, '#fmTemplate' )" href="<php>echo U('Admin/Template/detail/id/'.$vo['id']);</php>" data-toggle="modal" data-target="#myTemplate">编辑</a>/
+					<a onclick="return del( this.href )" href="<php>echo U('Admin/Template/del/id/'.$vo['id']);</php>">删除</a>
+				</td>
+			</tr>
+		</foreach>
+	</table>
+	<nav>
+		<ul class="pagination">
+			<{$show}>
+		</ul>
+	</nav>
+</div>

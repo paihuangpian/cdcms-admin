@@ -1,0 +1,77 @@
+<div class="modal-content">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+		<h4 class="modal-title" id="myModalLabel">订单详情</h4>
+		<div class="alert alert-success alert-dismissible text-center" style="opacity: 0;transition: opacity 1s;margin:0;padding: 10px;" role="alert"></div>
+	</div>
+	<div class="modal-body">
+		<php>
+			$order['status'] = $order['status'] == 2 ? 'selected="selected"' : '';
+			$user['status'] = $user['status'] == 2 ? '异常' : '正常';
+			$user['level'] = $user['level'] == 2 ? '普通会员' : 'VIP会员';
+		</php>
+		<p>订单基本信息</p>
+		<table class="table table-hover">
+			<input type="hidden" fmName="id" value="<{$order.id}>">
+			<tr>
+				<th>订单号</th>
+				<th>总金额</th>
+				<th>下单时间</th>
+				<th>订单状态</th>
+				<th>支付方式</th>
+			</tr>
+			<tr>
+				<td><{$order.number}></td>
+				<td><{$order.price}></td>
+				<td><{$order.create_time}></td>
+				<td>
+					<select fmName="status" class="form-control">
+		      			<option <{$order.status}> value="1">已支付</option>
+		      			<option <{$order.status}> value="2">未支付</option>
+				    </select>
+				</td>
+				<td><{$order.pay_type}></td>
+			</tr>
+		</table>
+		<p>会员信息</p>
+		<table class="table table-hover">
+			<tr>
+				<th>用户名</th>
+				<th>邮箱</th>
+				<th>手机号</th>
+				<th>等级</th>
+				<th>状态</th>
+			</tr>
+			<tr>
+				<td><{$user.name}></td>
+				<td><{$user.email}></td>
+				<td><{$user.mobile}></td>
+				<td><{$user.level}></td>
+				<td><{$user.status}></td>
+			</tr>
+		</table>
+		<p>商品信息</p>
+		<table class="table table-hover">
+			<tr>
+				<th>商品名</th>
+				<th>商品图</th>
+				<th>市场价</th>
+				<th>会员价</th>
+				<th>商品数</th>
+			</tr>
+			<foreach name="carts" item="vo">
+				<tr>
+					<td><{$vo.s_name}></td>
+					<td><img width="100px" src="<{$vo.s_thumbnail}>" /></td>
+					<td><{$vo.s_price}></td>
+					<td><{$vo.s_price_vip}></td>
+					<td><{$vo.c_num}></td>
+				</tr>
+			</foreach>
+		</table>
+	</div>
+  	<div class="modal-footer">
+    	<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+    	<button type="submit" class="btn btn-primary">提交</button>
+  	</div>
+</div>

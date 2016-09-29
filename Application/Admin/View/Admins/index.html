@@ -1,0 +1,36 @@
+<div class="top">
+	<p><i class="icon-list"></i><span>管理员列表</span></p>
+	<ul>
+		<li data-toggle="modal" style="cursor: pointer;" onclick="fnEmptyInput(inputAdmin_add,true)" data-target="#myAdmin-add">
+			<i class="icon-plus-sign-alt"></i>
+		</li>
+	</ul>
+</div>
+<div class="users">
+	<table class="table table-hover">
+		<tr>
+			<th>ID</th>
+			<th>管理员名</th>
+			<th>登录时间</th>
+			<th>登录IP</th>
+			<th>操作</th>
+		</tr>
+		<foreach name="list" item="vo">
+			<tr>
+				<td><{$vo.id}></td>
+				<td><{$vo.name}></td>
+				<td><{$vo.last}></td>
+				<td><{$vo.ip}></td>
+				<td>
+					<a onclick="return fnDetail( this.href, '#fmAdmin' )" href="<php>echo U('Admin/Admins/detail/id/'.$vo['id']);</php>" data-toggle="modal" data-target="#myAdmin">编辑</a>/
+					<a onclick="return del( this.href )" href="<php>echo U('Admin/Admins/del/id/'.$vo['id']);</php>">删除</a>
+				</td>
+			</tr>
+		</foreach>
+	</table>
+	<nav>
+		<ul class="pagination">
+			<{$show}>
+		</ul>
+	</nav>
+</div>

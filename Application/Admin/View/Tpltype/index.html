@@ -1,0 +1,32 @@
+<div class="top">
+	<p><i class="icon-list"></i><span>分类列表</span></p>
+	<ul>
+		<li data-toggle="modal" style="cursor: pointer;" onclick="fnEdit('<{:U('Admin/Tpltype/add')}>','#fmTpl-typeAdd')" data-target="#myTpl-typeAdd">
+			<i class="icon-plus-sign-alt"></i>
+		</li>
+	</ul>
+</div>
+<div class="users">
+	<table class="table table-hover">
+		<tr>
+			<th>ID</th>
+			<th>分类名</th>
+			<th>操作</th>
+		</tr>
+		<foreach name="list" item="vo">
+			<tr>
+				<td><{$vo.id}></td>
+				<td><{$vo.name}></td>
+				<td>
+					<a onclick="return fnEdit( this.href, '#fmTpl-typeEdit' )" href="<php>echo U('Admin/Tpltype/detail/id/'.$vo['id']);</php>" data-toggle="modal" data-target="#myTpl-typeEdit">编辑</a>/
+					<a onclick="return del( this.href )" href="<php>echo U('Admin/Tpltype/del/id/'.$vo['id']);</php>">删除</a>
+				</td>
+			</tr>
+		</foreach>
+	</table>
+	<nav>
+		<ul class="pagination">
+			<{$show}>
+		</ul>
+	</nav>
+</div>
