@@ -10,9 +10,20 @@ class TpltypeController extends CommonController
 	protected $tableName = 'Tpltype';
 	public function index()
 	{
-		$get = $this->Get;
-		$content = $this->fnPage( $this->tableName, 'Tpltype/index', 5 );
-		return $this->fnAjax( $content[0], $content[1] );
+		$post = $this->Post;
+		$m = M('template_type');
+		$num = 10;
+		$count = $m->where('pid=0')->count('pid');
+		$page = new \Think\Page( $count, $num );
+		$show = $page->show();
+		$list =	$m->order('id desc')
+				  ->limit( $page->firstRow.','.$page->listRow, $num )
+				  ->where('pid=0')
+				  ->select();
+		$this->assign( 'list', $list );
+		$this->assign( 'show', $show );
+		$content = $this->fetch( T('Tpltype/index') );
+		return $this->fnAjax( $content );
 	}
 
 	public function detail()
@@ -21,7 +32,9 @@ class TpltypeController extends CommonController
 		$_db = D('Tpltype');
 		$where = array( 'id'=>$get['id'] );
 		$tpl = $_db->where($where)->find();
+		$list = $_db->select();
 		$this->assign( 'type', $tpl );
+		$this->assign( 'list', $list );
 		$content = $this->fetch( T('Tpltype/edit') );
 		return $this->fnAjax($content);
 	}
@@ -41,7 +54,10 @@ class TpltypeController extends CommonController
 	public function add()
 	{
 		if( IS_GET ){
-			$content = $this->fetch( T('Tpltype/add') );
+			$_db = D('Template_type');
+			$type = $_db->select();
+			$this->assign( 'type', $type );
+			$content = $this->fetch( T('tpltype/add') );
 			return $this->fnAjax($content);
 		}
 		$post = $this->Post;
@@ -55,6 +71,18 @@ class TpltypeController extends CommonController
 		$get = $this->Get;
 		$res = $this->fnDel( $get['id'], $this->tableName );
 		return $this->fnAjax( $res[0], $res[1], U('index') );
+	}
+
+	public function Son()
+	{
+		$get = $this->Get;
+		$_db = M('template_type');
+		$where = array('pid'=>$get['id']);
+		$list = $_db->where($where)->select();
+		if( empty($list) ) return false;
+		$this->assign('list', $list);
+		$content = $this->fetch('/Tpltype/a');
+		return $this->fnAjax($content);
 	}
 
 }

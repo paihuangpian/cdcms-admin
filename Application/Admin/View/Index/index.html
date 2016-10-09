@@ -139,7 +139,7 @@
 		function fnSit( t, tpl ){
 			var url = t.action;
 			var oInput  = 	getInput( t, true );
-			console.log(oInput);
+			//console.log(oInput);
 			$.post( url, oInput, function( data ){
 				if( data.status ){
 					msg( 'alert-danger', 'alert-success', data.arr );
@@ -162,7 +162,12 @@
 				input = input.not('[readonly]');
 				$.each( input, function( key, value ){
 					attr = $(value).attr('fmName');
-					if( $(value).tagName == 'SELECT' ){
+					if( value.tagName == 'SELECT' ){
+						var sel = $(value).find('option:selected');
+						console.log(sel);
+						if( sel.attr('dir') ){
+							oInput['pDir'] = sel.attr('dir');
+						}
 						oInput[attr] = $(value).find('option:selected').val();
 					}else if( attr == 'thumbnail' || attr == 'thumb' ){
 						oInput[attr] = $(value).attr('src');
@@ -243,7 +248,7 @@
 		function fnEdit( url, val ){
 			$.get(url, {}, function(data){
 				$(val).html(data.arr);
-				console.log(data,val);
+				//console.log(data,val);
 			});
 		}
 	</script>

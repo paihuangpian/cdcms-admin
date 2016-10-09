@@ -7,22 +7,66 @@
 	</ul>
 </div>
 <div class="users">
-	<table class="table table-hover">
+	<ul>
+		<li>
+			<h5></h5>
+			<h5>ID</h5>
+			<h5>分类名</h5>
+			<h5>分类路径</h5>
+			<h5>添加时间</h5>
+			<h5>操作</h5>
+		</li>
+		<li>
+			<span onclick="loadData(this)" action="<{$vo.id}>"></span>
+			<span><{$vo.id}></span>
+			<span><{$vo.name}></span>
+			<span><{$vo.path}></span>
+			<span><{$vo.addtime}></span>
+			<span><{$vo.path}></span>
+			<span>
+				<a onclick="return fnEdit( this.href, '#fmTpl-typeEdit' )" href="<php>echo U('Admin/Tpltype/detail/id/'.$vo['id']);</php>" data-toggle="modal" data-target="#myTpl-typeEdit">编辑</a>/
+				<a onclick="return del( this.href )" href="<php>echo U('Admin/Tpltype/del/id/'.$vo['id']);</php>">删除</a>
+			</span>
+		</li>
+	</ul>
+	<table width="100%" class="table table-hover">
 		<tr>
-			<th>ID</th>
-			<th>分类名</th>
-			<th>操作</th>
+			<td colspan="6">
+				<table width="100%">
+					<tr>
+						<th width="10%"></th>
+						<th width="15%">ID</th>
+						<th width="15%">分类名</th>
+						<th width="15%">分类路径</th>
+						<th width="15%">添加时间</th>
+						<th width="15%">操作</th>
+					</tr>
+				</table>
+			</td>
 		</tr>
-		<foreach name="list" item="vo">
-			<tr>
-				<td><{$vo.id}></td>
-				<td><{$vo.name}></td>
-				<td>
-					<a onclick="return fnEdit( this.href, '#fmTpl-typeEdit' )" href="<php>echo U('Admin/Tpltype/detail/id/'.$vo['id']);</php>" data-toggle="modal" data-target="#myTpl-typeEdit">编辑</a>/
-					<a onclick="return del( this.href )" href="<php>echo U('Admin/Tpltype/del/id/'.$vo['id']);</php>">删除</a>
-				</td>
-			</tr>
-		</foreach>
+		<tr>
+			<td colspan="6">
+				<table width="100%" class="table table-hover">
+					<foreach name="list" item="vo">
+						<tr>
+							<td width="10%" onclick="loadData(this)" class="aid" action="<{$vo.id}>" >+</td>
+							<td width="15%"><{$vo.id}></td>
+							<td width="15%"><{$vo.name}></td>
+							<td width="15%"><{$vo.path}></td>
+							<td width="15%"><{$vo.addtime}></td>
+							<td width="15%">
+								<a onclick="return fnEdit( this.href, '#fmTpl-typeEdit' )" href="<php>echo U('Admin/Tpltype/detail/id/'.$vo['id']);</php>" data-toggle="modal" data-target="#myTpl-typeEdit">编辑</a>/
+								<a onclick="return del( this.href )" href="<php>echo U('Admin/Tpltype/del/id/'.$vo['id']);</php>">删除</a>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="6"><table width="100%" class="table table-hover"><tbody id="a<{$vo.id}>"></tbody></table></td>
+						</tr>
+					</foreach>
+				</table>
+			</td>
+		</tr>
+		
 	</table>
 	<nav>
 		<ul class="pagination">
@@ -30,3 +74,17 @@
 		</ul>
 	</nav>
 </div>
+
+<script type="text/javascript">
+	function loadData(t){
+		var id = $(t).attr('action');
+		if( id ){
+			$.get("<{:U('Tpltype/Son')}>", {'id':id}, function(data){
+				if(data.status){
+					$(t).attr('action', 0);
+					$('#a'+id).html(data.arr);
+				}
+			});
+		}
+	}
+</script>

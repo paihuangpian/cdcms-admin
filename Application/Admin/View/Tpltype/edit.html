@@ -12,6 +12,34 @@
 		      		<input type="text" fmName="name" class="form-control" id="tpl-nameEdit" placeholder="<{$type.name}>">
 		    	</div>
 		  	</div>
+		  	<div class="form-group">
+		    	<label for="tpl-nameEdit" class="col-sm-3 control-label">分类路径</label>
+		    	<div class="col-sm-9">
+		      		<input type="text" fmName="path" class="form-control" id="tpl-nameEdit" placeholder="<{$type.path}>">
+		    	</div>
+		  	</div>
+		  	<div class="form-group">
+		    	<label for="tpl-nameEdit" class="col-sm-3 control-label">上级分类</label>
+		    	<div class="col-sm-9">
+		      		<select fmName="pid" class="form-control">
+		      			<php>
+		      				if($type['pid']==0){
+		      					echo '<option value="0">顶级</option>';
+		      				}
+		      			</php>
+			    		<foreach name="list" item="vo">
+			    			<php>
+			    				if($type['pid'] == $vo['id']){
+			    					echo '<option selected="selected" value="'.$vo['id'].'">'.$vo['name'].'</option>
+			    					';
+			    				}else{
+			    					echo '<option value="'.$vo['id'].'">'.$vo['name'].'</option>';
+			    				}
+			    			</php>
+			    		</foreach>
+			    	</select>
+		    	</div>
+		  	</div>
 		</div>
   	<div class="modal-footer">
     	<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>

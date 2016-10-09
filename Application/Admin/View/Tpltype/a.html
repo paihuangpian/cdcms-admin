@@ -1,0 +1,17 @@
+<foreach name="list" item="vo">
+	<tr>
+		<td width="10%" onclick="loadData(this)" class="aid" action="<{$vo.id}>" >+</td>
+		<td width="15%"><{$vo.id}></td>
+		<td width="15%"><{$vo.name}></td>
+		<td width="15%"><{$vo.path}></td>
+		<td width="15%"><{$vo.addtime}></td>
+		<td>
+			<a onclick="return fnEdit( this.href, '#fmTpl-typeEdit' )" href="<php>echo U('Admin/Tpltype/detail/id/'.$vo['id']);</php>" data-toggle="modal" data-target="#myTpl-typeEdit">编辑</a>/
+			<a onclick="return del( this.href )" href="<php>echo U('Admin/Tpltype/del/id/'.$vo['id']);</php>">删除</a>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="6"><table width="100%" class="table table-hover"><tbody id="a<{$vo.id}>"></tbody></table></td>
+	</tr>
+</foreach>
+
