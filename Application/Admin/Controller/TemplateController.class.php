@@ -49,7 +49,7 @@ class TemplateController extends CommonController
 	public function edit()
 	{
 		$post = $this->Post;
-		$post['path'] = $post['pDir'].$post['dir'];
+		$post['path'] = $post['pDir'].$post['dir'].'/';
 		$m = D($this->tableName);
 		$where = array( 'name'=>$post['name'] );
 		$row = $m->where($where)->find();
@@ -69,7 +69,7 @@ class TemplateController extends CommonController
 			return $this->fnAjax($content);
 		}
 		$post = $this->Post;
-		$post['path'] = $post['pDir'].$post['dir'];
+		$post['path'] = $post['pDir'].$post['dir'].'/';
 		$res = $this->fnAdd( $this->tableName, $post );
 		return $this->fnAjax( $res[0], $res[1], U('index') );
 		
