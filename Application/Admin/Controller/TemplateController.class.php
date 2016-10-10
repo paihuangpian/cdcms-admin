@@ -24,7 +24,7 @@ class TemplateController extends CommonController
 		}
 		$this->assign( 'list', $list );
 		$this->assign( 'show', $show );
-		$content = $this->fetch( T('Templates/index') );
+		$content = $this->fetch( '/Templates/index' );
 		return $this->fnAjax( $content, 1 );
 	}
 
@@ -42,7 +42,7 @@ class TemplateController extends CommonController
 		$type = $_db->select();
 		$this->assign( 'row', $row );
 		$this->assign( 'type', $type );
-		$content = $this->fetch( T('Templates/edit') );
+		$content = $this->fetch( '/Templates/edit' );
 		return $this->fnAjax($content);
 	}
 
@@ -51,9 +51,9 @@ class TemplateController extends CommonController
 		$post = $this->Post;
 		$post['path'] = $post['pDir'].$post['dir'].'/';
 		$m = D($this->tableName);
-		$where = array( 'name'=>$post['name'] );
-		$row = $m->where($where)->find();
-		if( $row ) return $this->fnAjax( '已存在同名', 0 );
+		// $where = array( 'name'=>$post['name'] );
+		// $row = $m->where($where)->find();
+		// if( $row ) return $this->fnAjax( '已存在同名', 0 );
 		$where = array( 'id'=>$post['id'] );
 		$row = $m->where($where)->field( 'id', true )->save($post);
 		return $this->fnAjax( '编辑成功！', 1, U('index') );
@@ -65,7 +65,7 @@ class TemplateController extends CommonController
 			$_db = D('Template_type');
 			$type = $_db->select();
 			$this->assign( 'type', $type );
-			$content = $this->fetch( T('Templates/add') );
+			$content = $this->fetch( '/Templates/add' );
 			return $this->fnAjax($content);
 		}
 		$post = $this->Post;
@@ -101,7 +101,7 @@ class TemplateController extends CommonController
         }
         $url = $upload->rootPath.$upload->subName.$FilePath;
 		$msg = [ 'msg'=>'上传成功', 'url'=>'/Uploads/Admin/'.$upload->subName.$FilePath, ];
-		unzip_file($url,'./Templates/');
+		//unzip_file($url,'./Templates/');
 		return $this->fnAjax( $msg );
 	}
 

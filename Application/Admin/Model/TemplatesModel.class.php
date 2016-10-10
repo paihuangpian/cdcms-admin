@@ -52,13 +52,13 @@ class TemplatesModel extends Model
 		// 	$this->msg = '用户名不能少于3位且不能带有特殊字符和数字';
 		// 	return false;
 		// }
-		$name = array( 'name'=>$data['name'] );
-		$password = array( 'id'=>$data['id'], 'password'=>md5( $data['password'] ) );
-		$res = $db->where( $name )->find();
-		if( $res ) {
-			$this->msg = '已存在相同的名称';
-			return false;
-		}
+		// $name = array( 'name'=>$data['name'] );
+		// $password = array( 'id'=>$data['id'], 'password'=>md5( $data['password'] ) );
+		// $res = $db->where( $name )->find();
+		// if( $res ) {
+		// 	$this->msg = '已存在相同的名称';
+		// 	return false;
+		// }
 		// $preg = preg_match( '/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/', $data['passwords'] );
 		// if( !$preg ) {
 		// 	$this->msg = '密码不能少于6位并且字母数字混合';
