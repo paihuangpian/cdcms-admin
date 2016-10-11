@@ -24,6 +24,7 @@ html,body{
     width: calc(100% - 150px);
     height: 100%;
     background: #ebedef;
+    overflow: auto;
 }
 
 .body .right .top {

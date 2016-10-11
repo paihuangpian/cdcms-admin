@@ -85,6 +85,15 @@ class TpltypeController extends CommonController
 		return $this->fnAjax($content);
 	}
 
+	public function pid(){
+		$get = $this->Get;
+		$_db = M('template_type');
+		$where = array('pid'=>$get['id']);
+		$list = $_db->where($where)->select();
+		if( empty($list) ) return $this->fnAjax(null, 0);
+		return $this->fnAjax($list);
+	}
+
 }
 
 ?>

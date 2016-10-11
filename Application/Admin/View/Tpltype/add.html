@@ -19,11 +19,15 @@
 		  	</div>
 		  	<div class="form-group">
 		    	<label for="adminPwds" class="col-sm-4 control-label">上级分类</label>
-	    		<div class="col-sm-8">
-		      		<select fmName="pid" class="form-control">
-		      			<option value="0">顶级</option>
+	    		<div id="_type2" class="col-sm-8">
+		      		<select fmName="type" class="form-control">
+		      			<option selected="selected" value="0">顶级</option>
 			    		<foreach name="type" item="vo">
-							<option value="<{$vo.id}>"><{$vo.name}></option>
+			    			<php>
+			    				if($vo['pid'] == 0){
+			    					echo '<option dir="'.$vo['path'].'" value="'.$vo['id'].'">'.$vo['name'].'</option>';
+			    				}
+			    			</php>
 			    		</foreach>
 			    	</select>
 		    	</div>
@@ -34,3 +38,21 @@
     	<button type="submit" class="btn btn-primary">提交</button>
   	</div>
 </div>
+<script type="text/javascript">
+	$('#_type2').on('change', 'select', function(e){
+		var str = '';
+		var dom = null;
+		var $this = $(this);
+
+		$.get('<{:U("Admin/Tpltype/pid")}>', {id:$(this).val()}, function(data){
+			$this.nextAll('select').remove();
+			if(!data.status) return false;	
+			$this.removeAttr('fmName');
+			$('#_type2').append('<select fmName="type" class="form-control"></select>');
+			$.each(data.arr, function(key, value){
+				str += '<option value="'+value.id+'">'+value.name+'</option>';
+			});
+			$('#_type2').find('select[fmName=type]').html(str);
+		});
+	});
+</script>

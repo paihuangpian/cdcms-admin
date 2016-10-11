@@ -1,12 +1,10 @@
 <foreach name="list" item="vo">
-	<li>
-		<ul>
-			<li>
-				<span style="width: 5%" onclick="loadData(this)" action="<{$vo.id}>">+</span>
-				<span><{$vo.id}></span>
+	<li style="border-bottom: none;">
+		<ul style="background: white">
+			<li style="border-bottom: 1px solid #ababab;">
+				<span style="width: 5%;text-indent: 50px;" onclick="loadData(this)" action="<{$vo.id}>">+</span>
 				<span><{$vo.name}></span>
 				<span><{$vo.path}></span>
-				<span><{$vo.addtime}></span>
 				<span>
 					<a onclick="return fnEdit( this.href, '#fmTpl-typeEdit' )" href="<php>echo U('Admin/Tpltype/detail/id/'.$vo['id']);</php>" data-toggle="modal" data-target="#myTpl-typeEdit">编辑</a>/
 					<a onclick="return del( this.href )" href="<php>echo U('Admin/Tpltype/del/id/'.$vo['id']);</php>">删除</a>
